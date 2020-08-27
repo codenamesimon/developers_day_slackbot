@@ -1,0 +1,14 @@
+# node modules
+/node_modules
+
+# typescript compile dir
+/dist
+
+# service settings
+/settings.json
+
+# temp folder
+/temp
+
+# slack keys
+/keys.txt
