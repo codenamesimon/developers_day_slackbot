@@ -5,13 +5,6 @@ import { logger } from './logger.js';
 */
 export class Bot {
 
-    private static instanceId: number = 0;
-
-	public constructor() {
-        Bot.instanceId ++;
-        logger.info("bot instance" + Bot.instanceId);
-	}
-
 	/*
 		Setting up routing
 	*/

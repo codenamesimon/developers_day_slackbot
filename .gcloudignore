@@ -16,4 +16,7 @@
 # Node.js dependencies:
 node_modules/
 
+# Secrets
 /keys.txt
+/key.json
+/.env
