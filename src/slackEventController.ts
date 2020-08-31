@@ -1,11 +1,17 @@
 import { logger } from './logger.js';
 import Bot = require('./bot.js');
 
+/**
+ * Target object for slack communication
+ */
 export class SlackEventController {
-    /*
-        This method is target for the slack API endpoint
-    */
-   static processSlackRequest(request: any, response : any): void {
+
+    /**
+     *  This method is target for the slack API endpoint
+     * @param request Request object
+     * @param response Response object
+     */
+    static processSlackRequest(request: any, response: any): void {
 
         let responseObject: any;
 
@@ -27,15 +33,20 @@ export class SlackEventController {
         // After responding to slack process the event
         switch (request.body.type) {
             case "event_callback":
-                switch(request.body.event.type)
-                {
+                switch (request.body.event.type) {
                     case "message":
+
+                        if (request.body.event.bot_id !== undefined) {
+                            // This is a bot message. Don't respond to that.
+                            break;
+                        }
+
                         // So, someone sent us message. We need to read it
                         // and respond to the user Via DM
                         new Bot.Bot().processDirectMessage(request.body.event.text,
-                                                request.body.event.user,
-                                                request.body.event.channel);
-                    break;
+                            request.body.event.user,
+                            request.body.event.channel);
+                        break;
                     default: break;
                 }
                 break;
@@ -43,6 +54,5 @@ export class SlackEventController {
                 // do nothing
                 break;
         }
-
     }
 }

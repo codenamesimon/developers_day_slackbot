@@ -1,4 +1,4 @@
-// Shared logger class using winston
+// Shared logger instance using winston
 
 import winston from 'winston';
 import {LoggingWinston} from '@google-cloud/logging-winston';
@@ -11,10 +11,10 @@ const transports: winston.transport[] = env === 'development'
 
 const logger: winston.Logger = winston.createLogger(
     {
-        level: 'info',
+        level: env === 'development' ? 'verbose' : 'info',
         format: winston.format.json(),
         transports
     }
 );
 
-export {logger};
+export { logger };
