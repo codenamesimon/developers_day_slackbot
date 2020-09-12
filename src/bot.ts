@@ -74,21 +74,13 @@ export abstract class Bot {
 		// Check if user is authorized to use commands
 		const userId = request.body.user_id;
         if(!authedUsers.includes(userId)) {
-			return Slack.SendCommandToResponseUrl({
-                response_type: "ephemeral",
-                replace_original: false,
-                text: "You really though you're in control, huh?",
-			}, request.body.response_url, 'kretes');
+			return this.postMessageAsResponse("You really though you're in control, huh?",request.body.response_url,true);
 		}
 
 		// Validate text
 		let text: string = request.body.text;
         if(text === undefined || text === '') {
-			return Slack.SendCommandToResponseUrl({
-                response_type: "ephemeral",
-                replace_original: false,
-                text: "I don't understand that. (Text is undefined or empty.)",
-            }, request.body.response_url, 'kretes');
+			return this.postMessageAsResponse("I don't understand that. (Text is undefined or empty.)",request.body.response_url,true);
 		}
 
 		// Try to get theread timestamp
