@@ -12,11 +12,10 @@ export class Slack {
      * @param data Data to send in payload
      * @param endpoint Endpoint on which to send the request
      */
-    public static async SendSlackJsonApiRequest(data: any, endpoint: string): Promise<any> {
+    public static async SendSlackJsonApiRequest(data: any, endpoint: string, authKeyId: string): Promise<any> {
 
         const postData = JSON.stringify(data);
-
-        const authKey = await Secrets.getSecret('slack-bot-oaut-token');
+        const authKey = await Secrets.getSecret(authKeyId);
 
         const requestOptions = {
             host: "slack.com",
@@ -28,6 +27,9 @@ export class Slack {
                 'Authorization': "Bearer " + authKey
             }
         };
+
+        logger.info('post info', requestOptions);
+        logger.info('data', data);
 
         return new Promise<any>((resolve, reject) => {
 
@@ -52,9 +54,60 @@ export class Slack {
                         return;
                     }
 
-                    logger.verbose(`Slack API responded with a code ${response.statusCode}.`, jsonBody);
+                    logger.info(`Slack API responded with a code ${response.statusCode}.`, jsonBody);
 
                     resolve(jsonBody);
+                });
+            });
+
+            postRequest.on('error', (e) => {
+                logger.error("Slack JSON API request failed with error: " + e);
+                reject(e);
+            });
+
+            postRequest.write(postData);
+            postRequest.end();
+        });
+    }
+
+    /**
+     * Sends message to slack by response url
+     * @param data Data to send in payload
+     * @param endpoint Endpoint on which to send the request
+     */
+    public static async SendCommandToResponseUrl(data: any, responseUrl: string, authKeyId: string): Promise<any> {
+
+        const url = new URL(responseUrl);
+        const postData = JSON.stringify(data);
+        const authKey = await Secrets.getSecret(authKeyId);
+
+        const requestOptions = {
+            host: url.hostname,
+            path: url.pathname,
+            method: "POST",
+            headers: {
+                'Content-Type': "application/json; charset=utf-8",
+                'Content-Length': Buffer.byteLength(postData),
+                'Authorization': "Bearer " + authKey
+            }
+        };
+
+        logger.info('respond to url')
+        logger.info('post info', requestOptions);
+        logger.info('data', data);
+
+        return new Promise<any>((resolve, reject) => {
+
+            const postRequest = https.request(requestOptions, (response) => {
+                response.setEncoding('utf8');
+
+                let body = '';
+                response.on('data', (chunk) => {
+                    body += chunk;
+                });
+                response.on('end', () => {
+                    logger.info(`Slack API responded with a code ${response.statusCode}.`, body);
+                    resolve(body);
                 });
             });
 

@@ -5,8 +5,8 @@ import { IncomingMessage, ServerResponse } from 'http';
 
 import { logger } from './logger.js';
 
-import { SlackEventController } from './slackEventController.js'
-import { Posts } from './posts.js'
+import { Kretes } from './kretes.js'
+import { Rexor } from './rexor.js'
 
 /**
  * Application root.
@@ -31,39 +31,41 @@ export class App {
 				request.rawBody = buffer.toString();
 			}
 		}));
-		this.express.use(bodyParser.urlencoded({ extended: true }));
-		this.express.use(this.validateRequests);
+		this.express.use(bodyParser.urlencoded( {
+			extended: true,
+			verify: (request: IncomingMessage, response: ServerResponse, buffer: Buffer, encoding: string) => {
+				request.rawBody = buffer.toString();
+			}}));
+
+		// In general there are 2 bots served by the same app.
+		// So routing is /kretes/events /kretes/command for first
+		// And /rexor/events and /rexor/command for the second one
+		// As they are technically separate bot apps, they utilize different keys and different secrets
 
 		// routing
 		const router = express.Router();
-		router.post('/slack', SlackEventController.processSlackRequest)
-		router.post('/command', Posts.processCommand)
+
+		router.post('/kretes/events', this.processKretesEvent)
+		router.post('/kretes/command', this.processKretesCommand)
+		router.post('/rexor/events', this.processRexorEvent)
+		router.post('/rexor/command', this.processRexorCommand)
 
 		this.express.use('/', router)
 	}
 
-	/**
-	 * Veryfying if the requests are legit
-	 * @param request Request object. Contains headers and body
-	 * @param response Response object to interact with
-	 * @param next Callback to invoke if the processing of the request should continue
-	 */
-	private async validateRequests(request: any, response: any, next: () => void): Promise<void> {
+	private async processKretesEvent(request: any, response:any): Promise<void> {
+		return new Kretes().processEventRequest(request, response);
+	}
 
-		// Disable validation on development
-		const env = process.env.NODE_ENV || 'development';
-		if(env === 'development') {
-			return next();
-		}
+	private async processKretesCommand(request: any, response:any): Promise<void> {
+		return new Kretes().processCommandRequest(request, response);
+	}
 
-		if(request.url === '/slack')
-		{
-			return SlackEventController.validateRequest(request, response, next);
-		}
-		else if(request.url === '/command')
-		{
-			return Posts.validateRequest(request,response,next);
-		}
-		return response.status(400).end();
+	private async processRexorEvent(request: any, response:any): Promise<void> {
+		return new Rexor().processEventRequest(request, response);
+	}
+
+	private async processRexorCommand(request: any, response:any): Promise<void> {
+		return new Rexor().processCommandRequest(request, response);
 	}
 }

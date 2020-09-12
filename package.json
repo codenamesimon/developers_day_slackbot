@@ -14,7 +14,8 @@
     "start": "node .",
     "start:dev": "node -r dotenv/config .",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "npm-watch"
+    "watch": "npm-watch",
+    "deploy": "npm run build && gcloud app deploy --quiet"
   },
   "watch": {
     "test": "{src}/*.ts"
