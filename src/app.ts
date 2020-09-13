@@ -54,7 +54,8 @@ export class App {
 		router.post('/rexor/events', this.processRexorEvent)
 		router.post('/rexor/command', this.processRexorCommand)
 
-		router.get('/playingwithfire', this.performFirestoreDataRequest)
+		const env = process.env.NODE_ENV || 'development';
+		if(env === 'development') router.get('/test', this.localTest)
 
 		this.express.use('/', router)
 	}
@@ -75,58 +76,7 @@ export class App {
 		return new Rexor().processCommandRequest(request, response);
 	}
 
-	private async performFirestoreDataRequest(request: any, response: any) {
-		// 0. Creating a new User object
-		const user = new User('U9S4SC9FX', 'aleksandra.szmurlo@gmail.com', 'en');
-
-		// Completing a specific task on a user object (this does not update the database object!)
-		// const completed = user.completeTask('task3');
-		// logger.info(user.isTaskCompleted('task3'));
-
-		// 1. Requests full Data snapshot from Firestore
-		// await Fire.getStore().then(snapshot => {
-
-		// 	response.status(200).send(snapshot);
-
-		// }).catch(error => {
-		// 	logger.error(error);
-		// 	response.status(500).send(`${error}`);
-		// });
-
-		// 2. Inserts or updates a user object to Firestore
-		// await Fire.upsertData(user).then(result => {
-
-		// 	response.status(200).send(result);
-
-		// }).catch(error => {
-		// 	logger.error(error);
-		// 	response.status(500).send(`${error}`);
-		// });
-
-		// 3. Requests specific user data from Firestore
-
-		// const data = await Fire.getData('kekekeke');
-		// if (data === undefined)
-		// 	response.status(500).send();
-		// else
-		// 	response.status(200).send(data);
-
-		// await Fire.getData(user.slackId).then(data => {
-		// 	response.status(200).send(data);
-
-		// }).catch(error => {
-		// 	logger.error(error);
-		// 	response.status(500).send(`${error}`);
-		// });
-
-
-		// U939VF6LR on channel D01A014GC2V with message a teraz"
-
-		// const userData = await Slack.SendUrlEncoded({user: 'U939VF6LR'}, 'users.info', 'slack-bot-oaut-token');
-		// logger.info(userData.user.profile.email);
-
-		await new Kretes().processDirectMessage('2914917', 'U939VF6LR', 'D01A014GC2V');
-
+	private async localTest(request: any, response: any) {
 		response.status(200).end();
 	}
 }
