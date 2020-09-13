@@ -4,7 +4,7 @@
 export class Secrets {
 
     /**
-     * Fectes the secret from GCP secret manager
+     * Fetches the secret from GCP secret manager
      * @param secretId identifier of the requested secret
      */
 	public static async getSecret (secretId:string): Promise<string> {
