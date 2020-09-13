@@ -73,6 +73,10 @@ export class Fire {
 		return response;
 	}
 
+	public static async deleteData(userId: string): Promise<void> {
+		await Fire.getDatabase().collection('points').doc(userId).delete();
+	}
+
 	private static getDatabase() {
 		const Firestore = require('@google-cloud/firestore');
 
