@@ -1,7 +1,10 @@
 import { Bot } from './bot.js';
 import { logger } from './logger.js';
+import * as fs from 'fs';
 
 export class Kretes extends Bot {
+
+    private static lines: string[] = fs.readFileSync('lines.txt','utf8').split('\n');
 
     protected getSigningSecret(): string {
         return 'kretes-signing-secret';
@@ -26,10 +29,14 @@ export class Kretes extends Bot {
 	 * @param userId Id of the user
 	 * @param channelId Id of the conversation
 	 */
-	protected processDirectMessage(text: string, userId: string, channelId: string): void {
+	public processDirectMessage(text: string, userId: string, channelId: string): void {
 
-		logger.info(`user ${userId} on channel ${channelId} with message ${text}`);
+        logger.info(`message to kretes from user ${userId} on channel ${channelId} : ${text}`);
 
-        this.replyWithMessage('eror', channelId);
+        const max = Kretes.lines.length;
+        const rand = Math.floor(Math.random() * max);
+        const line = Kretes.lines[rand];
+
+        this.replyWithMessage(Buffer.from(line).toString('base64'), channelId);
     }
 }

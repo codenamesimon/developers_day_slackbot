@@ -1,5 +1,3 @@
-import { logger } from "./logger";
-
 export class User {
     slackId: string;
     username: string;
@@ -7,14 +5,14 @@ export class User {
     points: { task: string, timestamp: string }[];
 
     constructor(slackId: string, username: string, language: string) {
-      this.slackId = slackId;
-      this.username = username;
-      this.language = language;
-      this.points = [];
+        this.slackId = slackId;
+        this.username = username;
+        this.language = language;
+        this.points = [];
 
-      for (let i = 1; i <= 5; i++) {
-        this.points.push({task: 'task' + i, timestamp: null});
-      }
+        for (let i = 1; i <= 5; i++) {
+            this.points.push({ task: 'task' + i, timestamp: null });
+        }
     }
 
     /**
@@ -22,14 +20,14 @@ export class User {
      * @param taskId task to mark as completed
      * @returns {boolean} true if the task exists and have been marked as complete, false otherwise
      */
-    completeTask(taskId: string): boolean{
+    public completeTask(taskId: string): boolean {
         const point = this.points.find(element => element.task === taskId);
-        if (point){
+        if (point) {
             point.timestamp = new Date().toLocaleString();
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
@@ -37,12 +35,11 @@ export class User {
      * @param taskId task to verify
      * @returns {boolean} true if the task has been completed, false otherwise
      */
-    isTaskCompleted(taskId: string): boolean{
-        const point = this.points.find(element => element.task === taskId);
+    public isTaskCompleted(taskId: string): boolean {
 
+        const point = this.points.find(element => element.task === taskId);
         const completed = point?.timestamp != null;
 
         return completed;
     }
-
 }

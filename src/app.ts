@@ -9,6 +9,7 @@ import { Kretes } from './kretes.js'
 import { Rexor } from './rexor.js'
 import { Fire } from './firestore.js';
 import { User } from './user';
+import { Slack } from './slack.js'
 
 /**
  * Application root.
@@ -27,17 +28,18 @@ export class App {
 	constructor() {
 
 		this.express = express();
-		this.express.use(bodyParser.json( {
+		this.express.use(bodyParser.json({
 			verify: (request: IncomingMessage, response: ServerResponse, buffer: Buffer, encoding: string) => {
 				// Here we add rawBody to request object
 				request.rawBody = buffer.toString();
 			}
 		}));
-		this.express.use(bodyParser.urlencoded( {
+		this.express.use(bodyParser.urlencoded({
 			extended: true,
 			verify: (request: IncomingMessage, response: ServerResponse, buffer: Buffer, encoding: string) => {
 				request.rawBody = buffer.toString();
-			}}));
+			}
+		}));
 
 		// In general there are 2 bots served by the same app.
 		// So routing is /kretes/events /kretes/command for first
@@ -57,23 +59,23 @@ export class App {
 		this.express.use('/', router)
 	}
 
-	private async processKretesEvent(request: any, response:any): Promise<void> {
+	private async processKretesEvent(request: any, response: any): Promise<void> {
 		return new Kretes().processEventRequest(request, response);
 	}
 
-	private async processKretesCommand(request: any, response:any): Promise<void> {
+	private async processKretesCommand(request: any, response: any): Promise<void> {
 		return new Kretes().processCommandRequest(request, response);
 	}
 
-	private async processRexorEvent(request: any, response:any): Promise<void> {
+	private async processRexorEvent(request: any, response: any): Promise<void> {
 		return new Rexor().processEventRequest(request, response);
 	}
 
-	private async processRexorCommand(request: any, response:any): Promise<void> {
+	private async processRexorCommand(request: any, response: any): Promise<void> {
 		return new Rexor().processCommandRequest(request, response);
 	}
 
-	private async performFirestoreDataRequest(request: any, response: any){
+	private async performFirestoreDataRequest(request: any, response: any) {
 		// 0. Creating a new User object
 		const user = new User('U9S4SC9FX', 'aleksandra.szmurlo@gmail.com', 'en');
 
@@ -102,12 +104,29 @@ export class App {
 		// });
 
 		// 3. Requests specific user data from Firestore
-		await Fire.getData(user.slackId).then(data => {
-			response.status(200).send(data);
 
-		}).catch(error => {
-			logger.error(error);
-			response.status(500).send(`${error}`);
-		});
+		// const data = await Fire.getData('kekekeke');
+		// if (data === undefined)
+		// 	response.status(500).send();
+		// else
+		// 	response.status(200).send(data);
+
+		// await Fire.getData(user.slackId).then(data => {
+		// 	response.status(200).send(data);
+
+		// }).catch(error => {
+		// 	logger.error(error);
+		// 	response.status(500).send(`${error}`);
+		// });
+
+
+		// U939VF6LR on channel D01A014GC2V with message a teraz"
+
+		// const userData = await Slack.SendUrlEncoded({user: 'U939VF6LR'}, 'users.info', 'slack-bot-oaut-token');
+		// logger.info(userData.user.profile.email);
+
+		await new Kretes().processDirectMessage('2914917', 'U939VF6LR', 'D01A014GC2V');
+
+		response.status(200).end();
 	}
 }
