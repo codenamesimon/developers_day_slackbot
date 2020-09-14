@@ -6,24 +6,47 @@ import { Slack } from './slack.js'
 
 export class Rexor extends Bot {
 
+    // private static responsesPolish: Map<string, string> = new Map<string, string>([
+    //     ['lang_switch', "No to po polsku!"],
+    //     ['help', "Wysyłaj mi odpowiedzi na zagadki które pojawiają się na #general. Osoby które najszybciej rozwiążą wszytski zagadki wygrają specjalne nagrody. \n\n- Odpisz `status` żeby dowiedzieć się jak dobrze Ci idzie.\n- Odpisz `rezygnuje` żeby zrezygnować z konkursu i usunąć wszstkie swoje dane.\n- For english - reply `english please`. :flag-gb:"],
+    //     ['bad_response', "Niestety nie brzmi to jak odpowiedź, której szukamy :disappointed:. Nie wiesz co robić? Możesz zawsze zapytać się mnie o `pomoc`. \n\nFor english - reply `english please`. :flag-gb:"],
+    //     ['riddle_1', "Brawo! Rozwiązałeś poniedziałkową zagadkę! Rozwiązałeś już %d z %d zagadek! :tada:"],
+    //     ['riddle_1_cpl', "Ta zagadka została już przez Ciebie rozwiązana!"],
+    //     ['status', "Twój obecny postęp to %d na %d zagadek!\n\n %s Poniedziałek\n %s Wtorek\n %s Środa\n %s Czwartek\n %s Piątek"],
+    //     ['withdrawal', "Rozumiem! Usunąłem dane o Tobie. Szkoda, że rezygnujesz z zabawy. Jeśli zdecydujesz się dołączyć jeszcze raz, wystarczy że do mnie napiszesz. Niestety odpowiedzi na zagadki będą musiały być wysłane jeszcze raz. :wave:"]
+    // ]);
+
+    // private static responsesEnglish: Map<string, string> = new Map<string, string>([
+    //     ['lang_switch', "Alright, let's talk in english then!"],
+    //     ['help', "Send answers to the puzzles which are posted on #general. The fastest people who will get all of the answers right will win special rewards!\n\n- Reply `status` to check on your progress.\n- Reply `withdraw` to resign and delete all your data.\n- Odpisz `polski`, żeby porozmawiać po polsku. :flag-pl:"],
+    //     ['bad_response', "Unfortunately it doesn't look like an answer we're looking for :disappointed:. Don't know what to do? You can always ask me for `help`. \n\nOdpisz `polski`, żeby porozmawiać po polsku. :flag-pl:"],
+    //     ['riddle_1', "Congtatulations! You've solved the Monday's riddle! So far you've solved %d out of %d ridles! :tada:"],
+    //     ['riddle_1_cpl', "This riddle has already been solved by you!"],
+    //     ['status', "Your progress is %d out of %d riddles done!\n\n%s Monday\n%s Tuesday\n%s Wednesday\n%s Thursday\n%s Friday"],
+    //     ['withdrawal', "Understood! I've deleted all data about you! It's a shame that you've resigned. If u'd like to re-join just send me any message. You will need to send answers to all riddles again though! :wave:"]
+    // ]);
+
     private static responsesPolish: Map<string, string> = new Map<string, string>([
         ['lang_switch', "No to po polsku!"],
-        ['help', "Wysyłaj mi odpowiedzi na zagadki które pojawiają się na #general. Osoby które najszybciej rozwiążą wszytski zagadki wygrają specjalne nagrody. \n\n- Odpisz `status` żeby dowiedzieć się jak dobrze Ci idzie.\n- Odpisz `rezygnuje` żeby zrezygnować z konkursu i usunąć wszstkie swoje dane.\n- For english - reply `english please`. :flag-gb:"],
-        ['bad_response', "Niestety nie brzmi to jak odpowiedź, której szukamy :disappointed:. Nie wiesz co robić? Możesz zawsze zapytać się mnie o `pomoc`. \n\nFor english - reply `english please`. :flag-gb:"],
-        ['riddle_1', "Brawo! Rozwiązałeś poniedziałkową zagadkę! Rozwiązałeś już %d z %d zagadek! :tada:"],
+        ['help', "Wysyłaj mi odpowiedzi na zagadki, które pojawiają się na #general. Osoby, które najszybciej rozwiążą wszystkie zagadki, wygrają specjalne nagrody. \n\n- Odpisz `status`, żeby dowiedzieć się, jak dobrze Ci idzie.\n- Odpisz `rezygnuje`, żeby zrezygnować z konkursu i usunąć wszstkie swoje dane.\n- For English - reply `english please`. :flag-gb:"],
+        ['bad_response', "Niestety nie brzmi to jak odpowiedź, której szukamy :disappointed:. Nie wiesz, co robić? Możesz zawsze zapytać się mnie o `pomoc`. \n\nFor english - reply `English please`. :flag-gb:"],
+        ['riddle_1', "Brawo! Poniedziałkowa zagadka rozwiązana! Rozwiązano już %d z %d zagadek! :tada:"],
         ['riddle_1_cpl', "Ta zagadka została już przez Ciebie rozwiązana!"],
+        ['riddle_2', "Brawo! Wtorkowa zagadka rozwiązana! Rozwiązano już %d z %d zagadek! :tada:"],
+        ['riddle_2_cpl', "Ta zagadka została już przez Ciebie rozwiązana!"],
         ['status', "Twój obecny postęp to %d na %d zagadek!\n\n %s Poniedziałek\n %s Wtorek\n %s Środa\n %s Czwartek\n %s Piątek"],
-        ['withdrawal', "Rozumiem! Usunąłem dane o Tobie. Szkoda, że rezygnujesz z zabawy. Jeśli zdecydujesz się dołączyć jeszcze raz, wystarczy że do mnie napiszesz. Niestety odpowiedzi na zagadki będą musiały być wysłane jeszcze raz. :wave:"]
+        ['withdrawal', "Rozumiem! Usunąłem dane o Tobie. Szkoda, że rezygnujesz z zabawy. Jeśli zdecydujesz się dołączyć jeszcze raz, wystarczy, że do mnie napiszesz. Niestety odpowiedzi na zagadki będą musiały być wysłane jeszcze raz. :wave:"]
     ]);
-
     private static responsesEnglish: Map<string, string> = new Map<string, string>([
-        ['lang_switch', "Alright, let's talk in english then!"],
-        ['help', "Send answers to the puzzles which are posted on #general. The fastest people who will get all of the answers right will win special rewards!\n\n- Reply `status` to check on your progress.\n- Reply `withdraw` to resign and delete all your data.\n- Odpisz `polski`, żeby porozmawiać po polsku. :flag-pl:"],
-        ['bad_response', "Unfortunately it doesn't look like an answer we're looking for :disappointed:. Don't know what to do? You can always ask me for `help`. \n\nOdpisz `polski`, żeby porozmawiać po polsku. :flag-pl:"],
-        ['riddle_1', "Congtatulations! You've solved the Monday's riddle! So far you've solved %d out of %d ridles! :tada:"],
+        ['lang_switch', "Alright, let's talk in English then!"],
+        ['help', "Send me answers to the puzzles which are posted on #general. The people who will get all of the proper answers the fastest will win special rewards!\n\n- Reply `status` to check on your progress.\n- Reply `withdraw` to resign and delete all your data.\n- Odpisz `polski`, żeby porozmawiać po polsku :flag-pl:"],
+        ['bad_response', "Unfortunately it doesn't look like the answer we're looking for :disappointed:. Don't know what to do? You can always ask me for `help`. \n\nOdpisz `polski`, żeby porozmawiać po polsku :flag-pl:"],
+        ['riddle_1', "Congratulations! You've solved the Monday's riddle! So far you've solved %d out of %d ridles! :tada:"],
         ['riddle_1_cpl', "This riddle has already been solved by you!"],
+        ['riddle_2', "Congratulations! You've solved the Tuesday's riddle! So far you've solved %d out of %d ridles! :tada:"],
+        ['riddle_2_cpl', "This riddle has already been solved by you!"],
         ['status', "Your progress is %d out of %d riddles done!\n\n%s Monday\n%s Tuesday\n%s Wednesday\n%s Thursday\n%s Friday"],
-        ['withdrawal', "Understood! I've deleted all data about you! It's a shame that you've resigned. If u'd like to re-join just send me any message. You will need to send answers to all riddles again though! :wave:"]
+        ['withdrawal', "Understood! I've deleted all of your data! It's a shame that you've resigned. If you'd like to re-join just send me any message. You will need to send answers to all riddles again though! :wave:"]
     ]);
 
     protected getOauthToken(): string {
@@ -105,7 +128,7 @@ export class Rexor extends Bot {
 
             const reply = sprintf(dictionary.get('status'), solvedRiddles, 5,
                 personData.isTaskCompleted('task1') ? ':heavy_check_mark:' : ':x:',
-                personData.isTaskCompleted('task2') ? ':heavy_check_mark:' : ':grey_question:',
+                personData.isTaskCompleted('task2') ? ':heavy_check_mark:' : ':x:',
                 personData.isTaskCompleted('task3') ? ':heavy_check_mark:' : ':grey_question:',
                 personData.isTaskCompleted('task4') ? ':heavy_check_mark:' : ':grey_question:',
                 personData.isTaskCompleted('task5') ? ':heavy_check_mark:' : ':grey_question:');
@@ -114,8 +137,8 @@ export class Rexor extends Bot {
             return
         }
 
+        // Monday
         if (/\b2[., ]?9[., ]?1[., ]?4[., ]?9[., ]?1[., ]?7\b/.test(parsableMessage)) {
-
             const taskId: string = "task1";
 
             if (personData.isTaskCompleted(taskId)) {
@@ -124,6 +147,22 @@ export class Rexor extends Bot {
             else {
                 solvedRiddles++;
                 this.replyWithMessage(sprintf(dictionary.get('riddle_1'), solvedRiddles, 5), channelId);
+                personData.completeTask(taskId);
+                await Fire.upsertData(personData);
+            }
+            return;
+        }
+
+        // Tuesday
+        if(/1\.3\.1\b/.test(parsableMessage)) {
+            const taskId: string = "task2";
+
+            if (personData.isTaskCompleted(taskId)) {
+                this.replyWithMessage(dictionary.get('riddle_2_cpl'), channelId);
+            }
+            else {
+                solvedRiddles++;
+                this.replyWithMessage(sprintf(dictionary.get('riddle_2'), solvedRiddles, 5), channelId);
                 personData.completeTask(taskId);
                 await Fire.upsertData(personData);
             }
