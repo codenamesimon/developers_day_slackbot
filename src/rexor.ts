@@ -34,6 +34,8 @@ export class Rexor extends Bot {
         ['riddle_1_cpl', "Ta zagadka została już przez Ciebie rozwiązana!"],
         ['riddle_2', "Brawo! Wtorkowa zagadka rozwiązana! Rozwiązano już %d z %d zagadek! :tada:"],
         ['riddle_2_cpl', "Ta zagadka została już przez Ciebie rozwiązana!"],
+        ['riddle_3', "Brawo! Zagadka ze Środy rozwiązana! Rozwiązano już %d z %d zagadek! :tada:"],
+        ['riddle_3_cpl', "Ta zagadka została już przez Ciebie rozwiązana!"],
         ['status', "Twój obecny postęp to %d na %d zagadek!\n\n %s Poniedziałek\n %s Wtorek\n %s Środa\n %s Czwartek\n %s Piątek"],
         ['withdrawal', "Rozumiem! Usunąłem dane o Tobie. Szkoda, że rezygnujesz z zabawy. Jeśli zdecydujesz się dołączyć jeszcze raz, wystarczy, że do mnie napiszesz. Niestety odpowiedzi na zagadki będą musiały być wysłane jeszcze raz. :wave:"]
     ]);
@@ -45,6 +47,8 @@ export class Rexor extends Bot {
         ['riddle_1_cpl', "This riddle has already been solved by you!"],
         ['riddle_2', "Congratulations! You've solved the Tuesday's riddle! So far you've solved %d out of %d ridles! :tada:"],
         ['riddle_2_cpl', "This riddle has already been solved by you!"],
+        ['riddle_3', "Congratulations! You've solved the Wednesday's riddle! So far you've solved %d out of %d ridles! :tada:"],
+        ['riddle_3_cpl', "This riddle has already been solved by you!"],
         ['status', "Your progress is %d out of %d riddles done!\n\n%s Monday\n%s Tuesday\n%s Wednesday\n%s Thursday\n%s Friday"],
         ['withdrawal', "Understood! I've deleted all of your data! It's a shame that you've resigned. If you'd like to re-join just send me any message. You will need to send answers to all riddles again though! :wave:"]
     ]);
@@ -129,7 +133,7 @@ export class Rexor extends Bot {
             const reply = sprintf(dictionary.get('status'), solvedRiddles, 5,
                 personData.isTaskCompleted('task1') ? ':heavy_check_mark:' : ':x:',
                 personData.isTaskCompleted('task2') ? ':heavy_check_mark:' : ':x:',
-                personData.isTaskCompleted('task3') ? ':heavy_check_mark:' : ':grey_question:',
+                personData.isTaskCompleted('task3') ? ':heavy_check_mark:' : ':x:',
                 personData.isTaskCompleted('task4') ? ':heavy_check_mark:' : ':grey_question:',
                 personData.isTaskCompleted('task5') ? ':heavy_check_mark:' : ':grey_question:');
 
@@ -163,6 +167,22 @@ export class Rexor extends Bot {
             else {
                 solvedRiddles++;
                 this.replyWithMessage(sprintf(dictionary.get('riddle_2'), solvedRiddles, 5), channelId);
+                personData.completeTask(taskId);
+                await Fire.upsertData(personData);
+            }
+            return;
+        }
+
+        // Wed
+        if(/5984#/.test(parsableMessage)) {
+            const taskId: string = "task3";
+
+            if (personData.isTaskCompleted(taskId)) {
+                this.replyWithMessage(dictionary.get('riddle_3_cpl'), channelId);
+            }
+            else {
+                solvedRiddles++;
+                this.replyWithMessage(sprintf(dictionary.get('riddle_3'), solvedRiddles, 5), channelId);
                 personData.completeTask(taskId);
                 await Fire.upsertData(personData);
             }

@@ -12,13 +12,7 @@ export class Fire {
      */
 	public static async getStore(): Promise<any> {
 
-		const snapshot = await Fire.getDatabase().collection('points').get();
-		snapshot.forEach((doc: { id: any; data: () => any; }) => {
-			logger.info(doc.id + ' => ' + doc.data());
-		});
-
-		const data = snapshot;
-		return snapshot;
+		return await Fire.getDatabase().collection('points').get();
 	}
 
     /**
@@ -77,7 +71,7 @@ export class Fire {
 		await Fire.getDatabase().collection('points').doc(userId).delete();
 	}
 
-	private static getDatabase() {
+	public static getDatabase() {
 		const Firestore = require('@google-cloud/firestore');
 
 		return new Firestore({

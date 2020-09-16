@@ -9,7 +9,7 @@ const app = new App().express;
 app.listen( port, () => {
 
     process.on('unhandledRejection', (reason, p) => {
-        logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason);
+        logger.error('Unhandled Rejection at: Promise:' + p + ' reason: ' +  reason);
     });
 
     // tslint:disable-next-line:no-console
