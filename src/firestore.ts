@@ -67,6 +67,29 @@ export class Fire {
 		return response;
 	}
 
+    /**
+     * Fetches all user data object with points
+     * @returns {any} all user data containing slack id, username, language and points data
+     */
+	public static async getAllData(): Promise<any> {
+
+		const response: any = {};
+
+			const pointsRef = Fire.getDatabase().collection('points');
+			const snapshot = await pointsRef.orderBy('username').get();
+
+			if (!snapshot.empty) {
+				response.data = [];
+				snapshot.forEach((doc: { id: any; data: () => any; }) => {
+					response.data.push(Object.assign(new User('', '', ''), doc.data()));
+				  });
+			} else {
+				response.message = 'No users found.';
+			}
+
+		return response;
+	}
+
 	public static async deleteData(userId: string): Promise<void> {
 		await Fire.getDatabase().collection('points').doc(userId).delete();
 	}

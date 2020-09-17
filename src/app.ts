@@ -55,7 +55,8 @@ export class App {
 		router.post('/rexor/command', this.processRexorCommand)
 
 		const env = process.env.NODE_ENV || 'development';
-		if (env === 'development') router.get('/test', this.localTest)
+		if (env === 'development') router.get('/test', this.localTest);
+		if (env === 'development') router.get('/results', this.fullResults);
 
 		this.express.use('/', router)
 	}
@@ -105,11 +106,88 @@ export class App {
 			allAttempted: all.length,
 			solved1: all.filter(p => p.solved1).length,
 			solved2: all.filter(p => p.solved2).length,
-			solved3: all.filter(p => p.solved2).length,
+			solved3: all.filter(p => p.solved3).length,
 			solvedAll: all.filter(p => p.solved1 && p.solved2 && p.solved3).length,
 			raw: all
 		}
 		response.setHeader('Content-Type', 'application/json');
 		response.status(200).send(JSON.stringify(report));
 	}
+
+	private async fullResults(request: any, response: any) {
+		const tasksNumber = 5;
+		const snapshot = await Fire.getStore();
+
+		const participants: any[] = [];
+
+		const authedUsersRaw: string = await Secrets.getSecret('command-authed-users');
+		const authedUsers = authedUsersRaw.split(',');
+
+		snapshot.forEach((doc: { id: any; data: () => any; }) => {
+
+			const user: User = doc.data();
+
+			if (user.points === undefined) return;
+			if (authedUsers.includes(doc.id))
+			{
+				logger.info('skipping ' + doc.id);
+				return;
+			}
+
+			const score = {
+				username: user.username,
+				times: user.points.map((task: { timestamp: any; }) => Date.parse(task.timestamp))
+			}
+
+			participants.push(score);
+		});
+
+		// Filtering for all participants whose timescores filtered by nulls are still five elements + sorting by the last task timestamp
+		const finalists = participants.filter(score => score.times.filter((time: any) => time).length === tasksNumber).sort((a, b) => (a.times[tasksNumber - 1] > b.times[tasksNumber - 1]) ? 1 : -1);
+
+		response.setHeader('Content-Type', 'application/json');
+		response.status(200).send(JSON.stringify({pn: participants.length, lt: finalists.length, raw: finalists}));
+		return;
+		// Sorting by best timestamp for each task
+		const dailyWinners = [];
+		for (let i: number = 0; i < tasksNumber; i++) {
+			const dailyWinner = participants.sort((a, b) => a.times[i] - b.times[i])[0];
+			dailyWinners.push({ username: dailyWinner.username, time: dailyWinner.times[i] });
+		}
+
+		// Extracting min timestamps for each day from daily winners
+		const dailyMins: number[] = [];
+		for (let i: number = 0; i < tasksNumber; i++) {
+			dailyMins.push(dailyWinners[i].time);
+		}
+
+		// Querying for master of time, creating time deltas array and it's sum
+		finalists.forEach(finalist => {
+			finalist.deltas = [];
+			for (let i: number = 0; i < tasksNumber; i++) {
+				finalist.deltas.push(finalist.times[i] - dailyMins[i]);
+			};
+			finalist.deltaSum = finalist.deltas.reduce((a: number, b: number) => a + b, 0);
+		});
+
+		const report: any = {
+			winners: {
+				masteOfRules: dailyWinners[tasksNumber - 1],
+				masterOfTime: finalists.sort((a, b) => (a.deltaSum > b.deltaSum) ? 1 : -1)[0],
+				dailyWinners
+			},
+			numbers: {
+				participantsNumber: participants.length,
+				finalistsNumber: finalists.length
+			},
+			raw: {
+				participants,
+				finalists,
+			}
+		}
+		response.setHeader('Content-Type', 'application/json');
+		response.status(200).send(JSON.stringify(report));
+	}
+
+
 }
