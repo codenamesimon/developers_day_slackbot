@@ -1,5 +1,5 @@
 /**
- * Manage, add, fetch secrets
+ * Secrets manager access
  */
 export class Secrets {
 

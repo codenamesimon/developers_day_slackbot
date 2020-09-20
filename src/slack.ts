@@ -13,7 +13,7 @@ export class Slack {
      * @param data Data to send in payload
      * @param endpoint Endpoint on which to send the request
      */
-    public static async SendSlackJsonApiRequest(data: any, endpoint: string, authKeyId: string): Promise<any> {
+    public static async SendJsonApiRequest(data: any, endpoint: string, authKeyId: string): Promise<any> {
 
         const postData = JSON.stringify(data);
         const authKey = await Secrets.getSecret(authKeyId);
@@ -28,9 +28,6 @@ export class Slack {
                 'Authorization': "Bearer " + authKey
             }
         };
-
-        logger.info('post info', requestOptions);
-        logger.info('data', data);
 
         return new Promise<any>((resolve, reject) => {
 
@@ -93,10 +90,6 @@ export class Slack {
             }
         };
 
-        logger.info('respond to url')
-        logger.info('post info', requestOptions);
-        logger.info('data', data);
-
         return new Promise<any>((resolve, reject) => {
 
             const postRequest = https.request(requestOptions, (response) => {
@@ -133,7 +126,7 @@ export class Slack {
         data.token = authKey;
         const postData = querystring.stringify(data);
 
-        const requestOptions : https.RequestOptions = {
+        const requestOptions: https.RequestOptions = {
             host: 'slack.com',
             path: "/api/" + endpoint + "?" + postData,
             method: "GET",
@@ -141,8 +134,6 @@ export class Slack {
                 'Content-Type': "application/x-www-form-urlencoded; charset=utf-8"
             }
         };
-
-        logger.info(requestOptions);
 
         const responseBody = await new Promise<any>((resolve, reject) => {
 

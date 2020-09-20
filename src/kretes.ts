@@ -2,18 +2,28 @@ import { Bot } from './bot.js';
 import { logger } from './logger.js';
 import * as fs from 'fs';
 
+/**
+ * One of the bots.
+ * It responds with a random message after a slack user attempts to message him
+ */
 export class Kretes extends Bot {
 
+    /**
+     * Source of the random responses
+     */
     private static lines: string[] = fs.readFileSync('lines.txt','utf8').split('\n');
 
-    protected getSigningSecret(): string {
+    /** @inheritdoc */
+    protected getSigningSecretId(): string {
         return 'kretes-signing-secret';
     }
 
-    protected getOauthToken(): string {
+    /** @inheritdoc */
+    protected getOauthTokenId(): string {
         return 'kretes-oauth-token';
     }
 
+    /** @inheritdoc */
     protected processCommand(message: string, channelId: string, userId: string, responseUrl: string, threadTs: string): void {
         if(threadTs) {
             this.postMessageInThread(message, channelId, threadTs);
@@ -23,13 +33,8 @@ export class Kretes extends Bot {
         }
     }
 
-	/**
-	 * Process a message from a user.
-	 * @param text Text that was sent to the bot
-	 * @param userId Id of the user
-	 * @param channelId Id of the conversation
-	 */
-	public processDirectMessage(text: string, userId: string, channelId: string): void {
+    /** @inheritdoc */
+	protected processDirectMessage(text: string, userId: string, channelId: string): void {
 
         logger.info(`message to kretes from user ${userId} on channel ${channelId} : ${text}`);
 

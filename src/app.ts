@@ -78,40 +78,9 @@ export class App {
 	}
 
 	private async localTest(request: any, response: any) {
-		const snapshot = await Fire.getStore();
 
-		const all: any[] = [];
-
-		const authedUsersRaw: string = await Secrets.getSecret('command-authed-users');
-		const authedUsers = authedUsersRaw.split(',');
-
-		snapshot.forEach((doc: { id: any; data: () => any; }) => {
-
-			const user: User = doc.data();
-
-			if (user.points === undefined) return;
-			if (authedUsers.includes(doc.id)) return
-
-			all.push({
-				email: user.username,
-				lang: user.language,
-				points: user.points.filter(p => p.timestamp).length,
-				solved1: user.points.filter(p => p.task === "task1" && p.timestamp).length > 0,
-				solved2: user.points.filter(p => p.task === "task2" && p.timestamp).length > 0,
-				solved3: user.points.filter(p => p.task === "task3" && p.timestamp).length > 0
-			})
-		});
-
-		const report: any = {
-			allAttempted: all.length,
-			solved1: all.filter(p => p.solved1).length,
-			solved2: all.filter(p => p.solved2).length,
-			solved3: all.filter(p => p.solved3).length,
-			solvedAll: all.filter(p => p.solved1 && p.solved2 && p.solved3).length,
-			raw: all
-		}
 		response.setHeader('Content-Type', 'application/json');
-		response.status(200).send(JSON.stringify(report));
+		response.status(200).send(JSON.stringify({}));
 	}
 
 	private async fullResults(request: any, response: any) {
@@ -185,6 +154,4 @@ export class App {
 		response.setHeader('Content-Type', 'application/json');
 		response.status(200).send(JSON.stringify(report));
 	}
-
-
 }

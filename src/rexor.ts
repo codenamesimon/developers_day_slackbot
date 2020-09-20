@@ -42,14 +42,17 @@ export class Rexor extends Bot {
         ['withdrawal', "Understood! I've deleted all of your data! It's a shame that you've resigned. If you'd like to re-join just send me any message. You will need to send answers to all riddles again though! :wave:"]
     ]);
 
-    protected getOauthToken(): string {
+    /** @inheritdoc */
+    protected getOauthTokenId(): string {
         return 'slack-bot-oaut-token';
     }
 
-    protected getSigningSecret(): string {
+    /** @inheritdoc */
+    protected getSigningSecretId(): string {
         return 'slack-signing-secret';
     }
 
+    /** @inheritdoc */
     protected processCommand(message: string, channelId: string, userId: string, responseUrl: string, threadTs: string): void {
         if (threadTs) {
             this.postMessageInThread(message, channelId, threadTs);
@@ -59,13 +62,8 @@ export class Rexor extends Bot {
         }
     }
 
-    /**
-     * Process a message from a user.
-     * @param text Text that was sent to the bot
-     * @param userId Id of the user
-     * @param channelId Id of the conversation
-     */
-    public async processDirectMessage(text: string, userId: string, channelId: string): Promise<void> {
+    /** @inheritdoc */
+    protected async processDirectMessage(text: string, userId: string, channelId: string): Promise<void> {
 
         logger.info(`user ${userId} on channel ${channelId} with message ${text}`);
 
@@ -77,7 +75,7 @@ export class Rexor extends Bot {
         if (!personData) {
 
             logger.info('user not found')
-            const profile = await Slack.SendUrlEncoded({ user: userId }, 'users.info', this.getOauthToken());
+            const profile = await Slack.SendUrlEncoded({ user: userId }, 'users.info', this.getOauthTokenId());
             personData = new User(userId, profile.user.profile.email, 'pl');
 
             await Fire.upsertData(personData);

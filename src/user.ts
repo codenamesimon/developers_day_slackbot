@@ -1,3 +1,6 @@
+/**
+ * Class represents user in the Firestore
+ */
 export class User {
     slackId: string;
     username: string;
