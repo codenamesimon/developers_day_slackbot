@@ -20,7 +20,10 @@
   "watch": {
     "test": "{src}/*.ts"
   },
-  "author": "simon & alex",
+  "author": "Szymon Sirocki",
+  "contributors": [
+    "Aleksandra Szmurło"
+  ],
   "license": "MIT",
   "dependencies": {
     "@google-cloud/firestore": "^4.2.0",
