@@ -1,4 +1,6 @@
-# Slack Bot used for a Developers Day at BoomBit
+# Slack Bot used for Developers Day Competition
+
+The app is a target for two slack bots used in the competition. Every day a riddle was posted, and messages must have been sent as a DM to one of the bot. The second bot is there just for drama.
 
 ## Environment and secrets
 
