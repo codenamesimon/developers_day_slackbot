@@ -116,21 +116,23 @@ export class App {
 
 	private async fullResults(request: any, response: any) {
 		const tasksNumber = 5;
-		const snapshot = await Fire.getStore();
+		const winnersNumber = 6;
+		const publishTimestamps: any = [1600081380175, 1600160028180, 1600244384190, 1600330654192, 1600419874000];
+		const snapshot = await Fire.getAllData();
 
 		const participants: any[] = [];
 
 		const authedUsersRaw: string = await Secrets.getSecret('command-authed-users');
 		const authedUsers = authedUsersRaw.split(',');
 
-		snapshot.forEach((doc: { id: any; data: () => any; }) => {
+		snapshot.data.forEach((doc: any) => {
 
-			const user: User = doc.data();
+			const user: User = doc;
 
 			if (user.points === undefined) return;
-			if (authedUsers.includes(doc.id))
+			if (authedUsers.includes(user.slackId))
 			{
-				logger.info('skipping ' + doc.id);
+				logger.info('skipping ' + user.slackId);
 				return;
 			}
 
@@ -142,38 +144,33 @@ export class App {
 			participants.push(score);
 		});
 
-		// Filtering for all participants whose timescores filtered by nulls are still five elements + sorting by the last task timestamp
-		const finalists = participants.filter(score => score.times.filter((time: any) => time).length === tasksNumber).sort((a, b) => (a.times[tasksNumber - 1] > b.times[tasksNumber - 1]) ? 1 : -1);
+		// Filtering for all participants whose timescores filtered by nulls are still five elements
+		const finalists = participants.filter(score => score.times.filter((time: any) => time).length === tasksNumber);
 
-		response.setHeader('Content-Type', 'application/json');
-		response.status(200).send(JSON.stringify({pn: participants.length, lt: finalists.length, raw: finalists}));
-		return;
-		// Sorting by best timestamp for each task
+		// Sorting by best timestamp for each task and picking 6 finalists for each task
 		const dailyWinners = [];
 		for (let i: number = 0; i < tasksNumber; i++) {
-			const dailyWinner = participants.sort((a, b) => a.times[i] - b.times[i])[0];
-			dailyWinners.push({ username: dailyWinner.username, time: dailyWinner.times[i] });
-		}
-
-		// Extracting min timestamps for each day from daily winners
-		const dailyMins: number[] = [];
-		for (let i: number = 0; i < tasksNumber; i++) {
-			dailyMins.push(dailyWinners[i].time);
+			const taskWinners = [...finalists];
+			taskWinners.sort((a, b) => (a.times[i] > b.times[i]) ? 1 : -1);
+			dailyWinners.push(taskWinners.splice(0, Math.min(taskWinners.length, winnersNumber)));
 		}
 
 		// Querying for master of time, creating time deltas array and it's sum
 		finalists.forEach(finalist => {
 			finalist.deltas = [];
 			for (let i: number = 0; i < tasksNumber; i++) {
-				finalist.deltas.push(finalist.times[i] - dailyMins[i]);
+				finalist.deltas.push(finalist.times[i] - publishTimestamps[i]);
 			};
 			finalist.deltaSum = finalist.deltas.reduce((a: number, b: number) => a + b, 0);
 		});
 
+		// Sorting by time deltas and picking up 6 finalists with the best sum time
+		const sprinters = [...finalists].sort((a, b) => (a.deltaSum > b.deltaSum) ? 1 : -1).splice(0, Math.min(finalists.length, winnersNumber));
+
 		const report: any = {
 			winners: {
-				masteOfRules: dailyWinners[tasksNumber - 1],
-				masterOfTime: finalists.sort((a, b) => (a.deltaSum > b.deltaSum) ? 1 : -1)[0],
+				masterOfRules: dailyWinners[tasksNumber - 1],
+				masterOfTime: sprinters,
 				dailyWinners
 			},
 			numbers: {
