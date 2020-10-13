@@ -56,3 +56,8 @@ https://cloud.google.com/secret-manager/docs/reference/libraries#setting_up_auth
 - im:write
 - users.profile:read
 - users:read.email
+
+## Quick clone checklist:
+- `npm install`
+- Download and setup service account key for GCP
+- setup .env file
