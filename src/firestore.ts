@@ -1,3 +1,4 @@
+import { Firestore } from '@google-cloud/firestore';
 import { logger } from './logger.js';
 import { User } from './user.js';
 
@@ -6,13 +7,33 @@ import { User } from './user.js';
  */
 export class Fire {
 
+	/**
+	 * Object used for communication with Firestore
+	 */
+	private static database: Firestore;
+
+	/**
+	 * Identifier of the collection used for storing data for given edition
+	 */
+	private static collectionId: string = "edition-2";
+
+	/**
+	 * Initializes the Firstore facade
+	 */
+	static initialize() {
+		Fire.database = new Firestore({
+			projectId: process.env.GOOGLE_CLOUD_PROJECT,
+			keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+		});
+	}
+
     /**
      * Fetches all data from Firestore, a lot of data you don't need.
      * @returns {object} all firestore collection and client data
      */
 	public static async getStore(): Promise<any> {
 
-		return await Fire.getDatabase().collection('points').get();
+		return await Fire.database.collection(Fire.collectionId).get();
 	}
 
     /**
@@ -24,7 +45,7 @@ export class Fire {
 		const response: any = {};
 
 		if (user?.slackId) {
-			const document = Fire.getDatabase().collection('points').doc(user.slackId);
+			const document = Fire.database.collection(Fire.collectionId).doc(user.slackId);
 
 			logger.info(JSON.parse(JSON.stringify(user)));
 			await document.set(JSON.parse(JSON.stringify(user)));
@@ -43,28 +64,22 @@ export class Fire {
      * @param userId user's slack id
      * @returns {any} user data containing slack id, username, language and points data
      */
-	public static async getData(userId: string): Promise<any> {
+	public static async getUser(userId: string): Promise<User> {
 
-		const response: any = {};
-
-		if (userId) {
-			logger.info('User Id: ' + userId);
-
-			const pointsRef = Fire.getDatabase().collection('points').doc(userId);
-			const document = await pointsRef.get();
-
-			if (document.exists) {
-				response.data = Object.assign(new User('', '', ''), document.data());
-				response.message = 'User object received for: ' + response.data.slackId;
-
-			} else {
-				response.message = 'No data for the specified user';
-			}
-
-		} else {
-			response.message = 'User not specified';
+		if(!userId) {
+			logger.error('User not specified in getUser');
+			return null;
 		}
-		return response;
+
+		const documentRef = Fire.database.collection(Fire.collectionId).doc(userId);
+		const document = await documentRef.get();
+
+		if (document.exists) {
+			return Object.assign(new User('', '', ''), document.data());
+		} else {
+			logger.warn('No data for the specified user')
+			return null;
+		}
 	}
 
     /**
@@ -75,7 +90,7 @@ export class Fire {
 
 		const response: any = {};
 
-			const pointsRef = Fire.getDatabase().collection('points');
+			const pointsRef = Fire.database.collection(Fire.collectionId);
 			const snapshot = await pointsRef.orderBy('username').get();
 
 			if (!snapshot.empty) {
@@ -91,15 +106,7 @@ export class Fire {
 	}
 
 	public static async deleteData(userId: string): Promise<void> {
-		await Fire.getDatabase().collection('points').doc(userId).delete();
-	}
-
-	public static getDatabase() {
-		const Firestore = require('@google-cloud/firestore');
-
-		return new Firestore({
-			projectId: process.env.GOOGLE_CLOUD_PROJECT,
-			keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
-		});
+		await Fire.database.collection(Fire.collectionId).doc(userId).delete();
 	}
 }
+Fire.initialize();

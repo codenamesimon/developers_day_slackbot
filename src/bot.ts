@@ -176,7 +176,7 @@ export abstract class Bot {
 		const baseString: string = `v0:${timestampHeader}:${requestBody}`;
 		const hash = 'v0=' + require('crypto').createHmac("sha256", token).update(baseString).digest('hex');
 
-		logger.info('hash check', { computed: hash, expected: slackSignature, status: hash === slackSignature })
+		logger.debug('hash check', { computed: hash, expected: slackSignature, status: hash === slackSignature })
 
 		if (hash !== slackSignature) return false;
 		return true;
@@ -221,4 +221,19 @@ export abstract class Bot {
 			text: message
 		}, "chat.postMessage", this.getOauthTokenId());
 	}
+
+	/**
+	 * Replace polish diacritics with input string
+	 * @param input Input string
+	 */
+    protected static removeDiacritics(input: string): string {
+        return input.replace('ą', 'a')
+            .replace('ć', 'c')
+            .replace('ę', 'e')
+            .replace('ł', 'l')
+            .replace('ó', 'o')
+            .replace('ś', 's')
+            .replace('ż', 'z')
+            .replace('ź', 'z');
+    }
 }

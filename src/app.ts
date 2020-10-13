@@ -10,6 +10,8 @@ import { Rexor } from './rexor.js'
 import { Fire } from './firestore.js';
 import { User } from './user';
 import { Secrets } from './secrets.js'
+import {Task} from './task.js'
+import { Timestamp } from '@google-cloud/firestore';
 
 /**
  * Application root.
@@ -98,16 +100,15 @@ export class App {
 
 			const user: User = doc;
 
-			if (user.points === undefined) return;
-			if (authedUsers.includes(user.slackId))
-			{
+			if (user.tasks === undefined) return;
+			if (authedUsers.includes(user.slackId))	{
 				logger.info('skipping ' + user.slackId);
 				return;
 			}
 
 			const score = {
-				username: user.username,
-				times: user.points.map((task: { timestamp: any; }) => Date.parse(task.timestamp))
+				username: user.email,
+				times: Array.from(user.tasks).map((task) => task.completedTs)
 			}
 
 			participants.push(score);

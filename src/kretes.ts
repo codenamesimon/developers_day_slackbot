@@ -38,10 +38,6 @@ export class Kretes extends Bot {
 
         logger.info(`message to kretes from user ${userId} on channel ${channelId} : ${text}`);
 
-        const max = Kretes.lines.length;
-        const rand = Math.floor(Math.random() * max);
-        const line = Kretes.lines[rand];
-
-        this.replyWithMessage(Buffer.from(line).toString('base64'), channelId);
+        this.replyWithMessage("Did you mean @Rexor?", channelId);
     }
 }

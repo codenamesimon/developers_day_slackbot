@@ -1,21 +1,21 @@
+import { Timestamp } from '@google-cloud/firestore';
+import { logger } from './logger.js';
+import { Task } from './task.js'
+
 /**
  * Class represents user in the Firestore
  */
 export class User {
     slackId: string;
-    username: string;
+    email: string;
     language: string;
-    points: { task: string, timestamp: string }[];
+    tasks: Task[]
 
-    constructor(slackId: string, username: string, language: string) {
+    constructor(slackId: string, email: string, language: string) {
         this.slackId = slackId;
-        this.username = username;
+        this.email = email;
         this.language = language;
-        this.points = [];
-
-        for (let i = 1; i <= 5; i++) {
-            this.points.push({ task: 'task' + i, timestamp: null });
-        }
+        this.tasks = []
     }
 
     /**
@@ -24,13 +24,15 @@ export class User {
      * @returns {boolean} true if the task exists and have been marked as complete, false otherwise
      */
     public completeTask(taskId: string): boolean {
-        const point = this.points.find(element => element.task === taskId);
-        if (point) {
-            point.timestamp = new Date().toLocaleString();
-            return true;
-        }
 
-        return false;
+        if(this.tasks.find(t => t.id === taskId) === undefined)
+            this.tasks.push(new Task(taskId));
+
+        const task:Task = this.tasks.find(t => t.id === taskId);
+
+        if(task.completedTs !== null) return false;
+        task.completedTs = Timestamp.now();
+        return true;
     }
 
     /**
@@ -40,9 +42,8 @@ export class User {
      */
     public isTaskCompleted(taskId: string): boolean {
 
-        const point = this.points.find(element => element.task === taskId);
-        const completed = point?.timestamp != null;
-
-        return completed;
+        const task = this.tasks.find(t => t.id === taskId)
+        if(task === undefined) return false;
+        return task.completedTs !== null;
     }
 }

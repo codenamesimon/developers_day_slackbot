@@ -69,7 +69,7 @@ export class Rexor extends Bot {
 
         const parsableMessage = Rexor.removeDiacritics(text.toLowerCase());
 
-        const personDataRaw: any = await Fire.getData(userId);
+        const personDataRaw: any = await Fire.getUser(userId);
         let personData: User = personDataRaw.data;
 
         if (!personData) {
@@ -112,21 +112,24 @@ export class Rexor extends Bot {
         }
 
         const sprintf = require('sprintf-js').sprintf;
-        let solvedRiddles = personData.points.filter(p => p.timestamp).length;
+        let solvedRiddles = Array.from(personData.tasks.values()).filter(p => p.completedTs).length;
 
-        const statusKeywords = ['status', 'progres', 'zadani', 'task', 'info'];
-        if (statusKeywords.some(s => parsableMessage.includes(s))) {
+        // const statusKeywords = ['status', 'progres', 'zadani', 'task', 'info'];
+        // if (statusKeywords.some(s => parsableMessage.includes(s))) {
 
-            const reply = sprintf(dictionary.get('status'), solvedRiddles, 5,
-                personData.isTaskCompleted('task1') ? ':heavy_check_mark:' : ':x:',
-                personData.isTaskCompleted('task2') ? ':heavy_check_mark:' : ':x:',
-                personData.isTaskCompleted('task3') ? ':heavy_check_mark:' : ':x:',
-                personData.isTaskCompleted('task4') ? ':heavy_check_mark:' : ':x:',
-                personData.isTaskCompleted('task5') ? ':heavy_check_mark:' : ':x:');
+        //     const reply = sprintf(dictionary.get('status'), solvedRiddles, 5,
+        //         personData.isTaskCompleted('task1') ? ':heavy_check_mark:' : ':x:',
+        //         personData.isTaskCompleted('task2') ? ':heavy_check_mark:' : ':x:',
+        //         personData.isTaskCompleted('task3') ? ':heavy_check_mark:' : ':x:',
+        //         personData.isTaskCompleted('task4') ? ':heavy_check_mark:' : ':x:',
+        //         personData.isTaskCompleted('task5') ? ':heavy_check_mark:' : ':x:');
 
-            this.replyWithMessage(reply, channelId);
-            return
-        }
+        //     this.replyWithMessage(reply, channelId);
+        //     return
+        // }
+
+        this.replyWithMessage("hau!", channelId);
+        return;
 
         // Monday
         if (/\b2[., ]?9[., ]?1[., ]?4[., ]?9[., ]?1[., ]?7\b/.test(parsableMessage)) {
@@ -210,20 +213,5 @@ export class Rexor extends Bot {
 
         this.replyWithMessage(dictionary.get('bad_response'), channelId);
         return
-    }
-
-    /**
-     * Replace polish diacritics with input string
-     * @param input Input string
-     */
-    private static removeDiacritics(input: string): string {
-        return input.replace('ą', 'a')
-            .replace('ć', 'c')
-            .replace('ę', 'e')
-            .replace('ł', 'l')
-            .replace('ó', 'o')
-            .replace('ś', 's')
-            .replace('ż', 'z')
-            .replace('ź', 'z');
     }
 }
