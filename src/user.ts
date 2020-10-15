@@ -9,12 +9,14 @@ export class User {
     slackId: string;
     email: string;
     language: string;
+    sneaky: boolean;
     tasks: Task[]
 
     constructor(slackId: string, email: string, language: string) {
         this.slackId = slackId;
         this.email = email;
         this.language = language;
+        this.sneaky = false;
         this.tasks = []
     }
 
