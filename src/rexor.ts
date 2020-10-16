@@ -110,12 +110,15 @@ export class Rexor extends Bot {
         // Fetch task data
         const taskId = 'task1';
         let taskData = personData.tasks.find(t => t.id === taskId);
-        logger.info('task data', taskData)
+
         if (!taskData) {
             logger.info('adding new task data');
             taskData = new Task(taskId);
             personData.tasks.push(taskData);
         }
+
+        if(!taskData.guesses) taskData.guesses = [];
+        logger.info('task data', taskData)
 
         const statusKeywords = ['status', 'progres', 'info'];
         if (statusKeywords.some(s => parsableMessage.includes(s))) {
@@ -151,10 +154,16 @@ export class Rexor extends Bot {
             }
         });
 
-        const handlesCount = text.match(/<@U\w+>/g)?.length ?? 0;
+        const handles = text.match(/<@U\w+>/g);
+        const handlesCount = handles?.length ?? 0;
 
         if (handlesCount < correctAnswers.length) {
             taskData.attempts++;
+
+            handles?.forEach(element => {
+                if(!taskData.guesses.find(e => e === element))
+                    taskData.guesses.push(element);
+            });
 
             const reply = sprintf(dictionary.get('not_enough_handles'), correctAnswers.length);
             this.replyWithMessage(reply, channelId);
@@ -162,6 +171,10 @@ export class Rexor extends Bot {
         }
         else if (handlesCount > correctAnswers.length) {
             taskData.attempts++;
+            handles?.forEach(element => {
+                if(!taskData.guesses.find(e => e === element))
+                    taskData.guesses.push(element);
+            });
             personData.sneaky = true;
             const reply = sprintf(dictionary.get('too_many_handles'), correctAnswers.length, handlesCount);
             this.replyWithMessage(reply, channelId);
@@ -174,6 +187,10 @@ export class Rexor extends Bot {
             if (correctGuesses === correctAnswers.length) {
                 // tada
                 taskData.attempts++;
+                handles?.forEach(element => {
+                    if(!taskData.guesses.find(e => e === element))
+                        taskData.guesses.push(element);
+                });
                 taskData.completedTs = Timestamp.now();
                 const reply = sprintf(dictionary.get('riddle_1_solved'), taskData.attempts);
                 this.replyWithMessage(reply, channelId);
@@ -182,6 +199,10 @@ export class Rexor extends Bot {
             else {
                 // somethin in between
                 taskData.attempts++;
+                handles?.forEach(element => {
+                    if(!taskData.guesses.find(e => e === element))
+                        taskData.guesses.push(element);
+                });
                 const reply = sprintf(dictionary.get('riddle_1_partial'), correctGuesses, correctAnswers.length, taskData.attempts);
                 this.replyWithMessage(reply, channelId);
                 await Fire.upsertData(personData);

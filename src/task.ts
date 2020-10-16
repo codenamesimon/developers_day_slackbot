@@ -7,10 +7,12 @@ export class Task {
     id: string;
     attempts: number;
     completedTs: Timestamp;
+    guesses: string[];
 
     constructor(id: string) {
         this.id = id;
         this.attempts = 0;
         this.completedTs = null;
+        this.guesses = [];
     }
 }
